@@ -1,6 +1,6 @@
 {
   "name": "paseo-team-space",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Share read-only agent conversations with a team and fork private local branches.",
   "type": "module",
   "license": "Apache-2.0",

@@ -19,6 +19,8 @@ npm install --prefix .runtime/beta @getpaseo/cli@0.16.0-beta.1
 node scripts/smoke.mjs
 ```
 
+可把 `TEAM_LEGACY_SOURCE` 指向从 v0.1.1 标签解压的旧插件目录，稳定版 daemon 将加载旧插件，beta daemon 继续加载当前版本，验证两个方向的共享与分支。
+
 报告在 `artifacts/smoke-report.json`。测试包含插件服务端加载、客户端 bundle 编译、稳定版到 beta 的共享、分支本地创建、原会话不变、移出与分支保留。`SMOKE_KEEP=1` 保持隔离实例运行以进行浏览器检查，结束时向测试脚本发送 SIGTERM。
 
 保持实例运行时，执行 `npx playwright install chromium` 和 `node scripts/browser-check.mjs` 检查真实 Paseo Web 客户端。已验证桌面浅色、390px 窄屏深色、只读会话无输入框、从界面创建分支及无横向溢出。截图在 `assets/`，浏览器报告在 `artifacts/browser-report.json`。窄屏检查使用浏览器模拟，尚未在 iOS/Android 真机上验证。

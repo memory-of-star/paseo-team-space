@@ -77,7 +77,10 @@ async function daemon(channel) {
       plugins: {
         "team-space": {
           source: "directory",
-          path: process.env.TEAM_PLUGIN_SOURCE ?? root,
+          path:
+            (channel === "stable" && process.env.TEAM_LEGACY_SOURCE) ||
+            process.env.TEAM_PLUGIN_SOURCE ||
+            root,
           enabled: true,
         },
         "provider-direct-example": {
@@ -211,6 +214,8 @@ try {
     prompt: "Review login sessions, cookie scope and CSRF protection.",
   });
   await source.waitForFinish({ timeoutMs: 15_000 });
+  await source.send("Focus on rotating cookies each week.");
+  await source.waitForFinish({ timeoutMs: 15_000 });
   await alice.call("team.share", { agentId: source.id, enabled: true });
   const list = await bob.call("team.list");
   assert.equal(list.length, 1);
@@ -218,19 +223,50 @@ try {
   assert.ok(detail.entries.some((entry) => entry.text.includes("CSRF")));
   assert.ok(detail.checkpoints.length);
   const original = await source.timeline.refetch();
+  const params = {
+    shareId: list[0].id,
+    checkpointId: detail.checkpoints[0].id,
+  };
+  const turns = await bob.call("team.fork-turns", params);
+  assert.equal(turns.length, 2);
+  assert.match(turns[1].preview, /rotating cookies/);
+  const models = await bob.call("team.fork-models", {
+    provider: "direct-example",
+  });
+  assert.equal(models[0].id, "example-1");
   const fork = await bob.call("team.fork", {
     shareId: list[0].id,
     checkpointId: detail.checkpoints[0].id,
     requestKey: "smoke-fork",
     provider: "direct-example/example-1",
-    question: "How should the session cookie expire?",
+    startEntryId: turns[1].id,
   });
   const branch = bob.api.agents.ref(fork.agentId);
+  const idle = await branch.refresh();
+  assert.equal(idle.agent.status, "idle");
+  assert.equal(idle.agent.activeTurn, null);
+  assert.ok(
+    !(await branch.timeline.refetch()).entries.some(({ item }) =>
+      ["user_message", "assistant_message"].includes(item.type),
+    ),
+  );
+  const saved = JSON.parse(
+    await readFile(join(idle.agent.cwd, "team-history.json"), "utf8"),
+  );
+  assert.deepEqual(
+    saved,
+    detail.entries
+      .slice(detail.entries.findIndex((e) => e.id === turns[1].id))
+      .map(({ role, text }) => ({ role, text })),
+  );
+  await branch.send("How should the session cookie expire?");
   await branch.waitForFinish({ timeoutMs: 15_000 });
   const history = await branch.timeline.refetch();
   assert.ok(
-    history.entries.some((row) =>
-      row.item.text?.includes("shared-conversation-json"),
+    history.entries.some(
+      ({ item }) =>
+        item.type === "assistant_message" &&
+        item.text.includes("cookie expire"),
     ),
   );
   assert.deepEqual(
@@ -243,6 +279,23 @@ try {
   );
   await bob.call("team.share", { agentId: fork.agentId, enabled: true });
   assert.equal((await alice.call("team.list")).length, 2);
+  const other = (await alice.call("team.list")).find(
+    (item) => item.id !== list[0].id,
+  );
+  const fromBob = await alice.call("team.detail", { shareId: other.id });
+  const legacyFork = await alice.call("team.fork", {
+    shareId: other.id,
+    checkpointId: fromBob.checkpoints[0].id,
+    requestKey: "old-client-fork",
+    provider: "direct-example/example-1",
+    question: "Legacy fork question",
+  });
+  await alice.api.agents
+    .ref(legacyFork.agentId)
+    .waitForFinish({ timeoutMs: 15_000 });
+  console.log(
+    "Idle range fork, user-initiated first turn and reverse legacy fork passed",
+  );
   await alice.call("team.share", { agentId: source.id, enabled: false });
   await assert.rejects(bob.call("team.detail", { shareId: list[0].id }));
   assert.equal((await bob.call("team.list")).length, 1);

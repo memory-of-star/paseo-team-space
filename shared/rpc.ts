@@ -94,6 +94,16 @@ export const localRpc = defineRpc({
     }),
   ),
 });
+export const forkTurnsRpc = defineRpc({
+  name: "team.fork-turns",
+  input: z.object({ shareId: idSchema, checkpointId: idSchema }),
+  output: z.array(z.object({ id: z.string(), preview: z.string() })),
+});
+export const forkModelsRpc = defineRpc({
+  name: "team.fork-models",
+  input: z.object({ provider: z.string().trim().min(1).max(200) }),
+  output: z.array(z.object({ id: z.string(), label: z.string() })),
+});
 export const forkRpc = defineRpc({
   name: "team.fork",
   input: z.object({
@@ -101,7 +111,8 @@ export const forkRpc = defineRpc({
     checkpointId: idSchema,
     requestKey: z.string().min(1).max(200),
     provider: z.string().trim().min(1).max(200),
-    question: z.string().trim().min(1).max(20_000),
+    question: z.string().trim().min(1).max(20_000).optional(),
+    startEntryId: z.string().min(1).max(200).optional(),
   }),
   output: z.object({ agentId: z.string(), origin: originSchema }),
 });

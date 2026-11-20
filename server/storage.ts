@@ -27,6 +27,7 @@ const stateSchema = z.object({
       checkpointId: z.string(),
       provider: z.string(),
       question: z.string(),
+      startEntryId: z.string().optional(),
       done: z.boolean(),
       origin: originSchema.optional(),
     }),

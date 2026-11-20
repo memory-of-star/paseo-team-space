@@ -48,6 +48,14 @@ test("two connectors publish, fork on the recipient host, retry idempotently, an
                 seqStart: 2,
                 item: { type: "assistant_message", text: "Use scoped cookies" },
               },
+              {
+                seqStart: 3,
+                item: { type: "user_message", text: "Review expiry" },
+              },
+              {
+                seqStart: 4,
+                item: { type: "assistant_message", text: "Expire at noon" },
+              },
             ],
           }),
         },
@@ -99,6 +107,39 @@ test("two connectors publish, fork on the recipient host, retry idempotently, an
       bob.fork({ ...input, question: "different" }),
       /different input/,
     );
+    const idleInput = {
+      ...input,
+      question: undefined,
+      requestKey: "range",
+      startEntryId: "epoch:3",
+    };
+    assert.deepEqual(await bob.forkTurns(shared.id, input.checkpointId), [
+      { id: "epoch:1", preview: "Design auth" },
+      { id: "epoch:3", preview: "Review expiry" },
+    ]);
+    const idleBranch = await bob.fork(idleInput);
+    const idle = created.at(-1)!;
+    assert.equal(idle.prompt, undefined);
+    assert.match(idle.config.systemPrompt ?? "", /team-history.json/);
+    assert.doesNotMatch(idle.config.systemPrompt ?? "", /noon/);
+    assert.deepEqual(
+      JSON.parse(await readFile(join(idle.cwd, "team-history.json"), "utf8")),
+      [
+        { role: "user", text: "Review expiry" },
+        { role: "assistant", text: "Expire at noon" },
+      ],
+    );
+    assert.deepEqual(await bob.fork(idleInput), idleBranch);
+    assert.equal(created.length, 2);
+    await assert.rejects(
+      bob.fork({ ...idleInput, startEntryId: "epoch:1" }),
+      /different input/,
+    );
+    await assert.rejects(
+      bob.fork({ ...idleInput, requestKey: "bad", startEntryId: "epoch:4" }),
+      /不在/,
+    );
+    assert.equal(created.length, 2);
     assert.equal((await alice.status()).shared.length, 1);
     await new Promise<void>((resolve) => server.close(() => resolve()));
     assert.deepEqual(await alice.share("source-agent", false), {

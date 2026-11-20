@@ -20,6 +20,14 @@ export default function contribute(server: PluginServerContext) {
     connector.bind(paseo);
     return connector.share(input.agentId, input.enabled);
   });
+  server.handle(rpc.forkTurnsRpc, (input) =>
+    connector.forkTurns(input.shareId, input.checkpointId),
+  );
+  server.handle(rpc.forkModelsRpc, async ({ provider }, { paseo }) => {
+    const result = await paseo.providers.listModels(provider);
+    if (result.error) throw new Error(result.error);
+    return (result.models ?? []).map(({ id, label }) => ({ id, label }));
+  });
   server.handle(rpc.forkRpc, (input, { paseo }) => {
     connector.bind(paseo);
     return connector.fork(input);

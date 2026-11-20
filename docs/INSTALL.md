@@ -11,7 +11,7 @@ paseo --version
 paseo status --json
 ```
 
-以 `paseo status --json` 返回的 `daemonVersion` 判断运行中的 daemon 版本。`paseo --version` 显示 CLI 版本。如果 daemon 未运行，先启动用户已有的实例，再检查状态。Team Space `v0.1.1` 声明的 Paseo 版本范围是 `>=0.15.4 <0.17.0`，已验证 `0.15.4` 和 `0.16.0-beta.1`。如果 daemon 版本满足要求且 CLI 支持 `paseo plugin`，直接进入第 2 步。
+以 `paseo status --json` 返回的 `daemonVersion` 判断运行中的 daemon 版本。`paseo --version` 显示 CLI 版本。如果 daemon 未运行，先启动用户已有的实例，再检查状态。Team Space `v0.2.0` 声明的 Paseo 版本范围是 `>=0.15.4 <0.17.0`，已验证 `0.15.4` 和 `0.16.0-beta.1`。如果 daemon 版本满足要求且 CLI 支持 `paseo plugin`，直接进入第 2 步。
 
 ### 版本不满足时，先更新到最新稳定版
 
@@ -33,13 +33,13 @@ paseo reload
 paseo plugin ls --json
 ```
 
-查看插件列表。如果还没有 `team-space`，从 GitHub 安装发布标签 `v0.1.1`：
+查看插件列表。如果还没有 `team-space`，从 GitHub 安装发布标签 `v0.2.0`：
 
 ```text
-paseo plugin install https://github.com/memory-of-star/paseo-team-space.git --ref v0.1.1
+paseo plugin install https://github.com/memory-of-star/paseo-team-space.git --ref v0.2.0
 ```
 
-如果列表中已有来自本仓库或其本地检出的 `team-space`，可以直接继续启用。若同名条目指向其他项目，先报告来源冲突，并保留现有安装。
+如果已有从本 Git 仓库安装的旧版，使用 `paseo plugin update team-space --ref v0.2.0` 更新到同一插件 ID。若安装来源是本地目录，请在该检出中取得 v0.2.0 的代码并执行 `paseo plugin reload team-space`；保留本地修改。已经运行此版本时可以直接核验。升级沿用当前成员身份，无需重新创建或加入团队。若同名条目指向其他项目，先报告来源冲突，并保留现有安装。
 
 ## 3. 启用并核验
 

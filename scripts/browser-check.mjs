@@ -35,20 +35,16 @@ try {
   await page.screenshot({ path: "artifacts/conversation-readonly.png" });
   await page.getByText("从历史创建分支", { exact: true }).click();
   await page
-    .getByRole("textbox", { name: "在你的分支里继续提问" })
-    .fill("Compare sliding expiry and absolute expiry for these sessions.");
-  await page
-    .getByRole("textbox", { name: "本机 provider 或 provider/model" })
-    .fill("direct-example/example-1");
+    .getByRole("button", { name: /第 1 轮/ })
+    .first()
+    .click();
+  await page.getByRole("button", { name: "Example 1", exact: true }).click();
   await page.screenshot({ path: "artifacts/fork-desktop.png" });
   await page.getByText("创建并打开我的分支", { exact: true }).click();
   await page
-    .waitForURL((url) => !url.pathname.includes("plugins"), { timeout: 20_000 })
-    .catch(() => {});
-  await page
-    .getByText(/Compare sliding expiry/)
-    .first()
-    .waitFor({ timeout: 20_000 });
+    .getByText("创建并打开我的分支", { exact: true })
+    .waitFor({ state: "hidden", timeout: 20_000 });
+  await page.getByRole("textbox").last().waitFor({ timeout: 20_000 });
   await wide.close();
   const compact = await browser.newContext({
     viewport: { width: 390, height: 844 },

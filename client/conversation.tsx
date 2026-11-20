@@ -2,7 +2,7 @@ import { useRef, useState } from "react";
 import { FlatList, ScrollView, Text, View } from "react-native";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useRpc, type PluginScreenProps } from "@getpaseo/plugin/client";
-import { detailRpc, forkRpc } from "../shared/rpc";
+import { detailRpc, forkRpc, forkTurnsRpc, forkModelsRpc } from "../shared/rpc";
 import type { Identity } from "../shared/model";
 import { Button, ErrorText, Field } from "./components";
 
@@ -19,6 +19,8 @@ export function Conversation({
 }) {
   const getDetail = useRpc(detailRpc);
   const fork = useRpc(forkRpc);
+  const getTurns = useRpc(forkTurnsRpc);
+  const getModels = useRpc(forkModelsRpc);
   const detail = useQuery({
     queryKey: ["team-space", "detail", shareId],
     queryFn: () => getDetail({ shareId }),
@@ -27,11 +29,32 @@ export function Conversation({
   });
   const [showFork, setShowFork] = useState(false);
   const [selected, setSelected] = useState<string | null>(null);
-  const [provider, setProvider] = useState("");
-  const [question, setQuestion] = useState("");
+  const [provider, setProvider] = useState<string | null>(null);
+  const [model, setModel] = useState("");
+  const [startEntry, setStartEntry] = useState<string>();
+  const [page, setPage] = useState(0);
   const requestKey = useRef<string | null>(null);
   const data = detail.data;
   const checkpointId = selected ?? data?.checkpoints[0]?.id;
+  const turns = useQuery({
+    queryKey: ["team-space", "fork-turns", shareId, checkpointId],
+    enabled: showFork && !!checkpointId,
+    queryFn: () => getTurns({ shareId, checkpointId: checkpointId! }),
+    staleTime: Infinity,
+    retry: false,
+  });
+  const providerName = (provider ?? data?.provider ?? "").trim();
+  const models = useQuery({
+    queryKey: ["team-space", "fork-models", providerName],
+    enabled: showFork && !!providerName && !providerName.includes("/"),
+    queryFn: () => getModels({ provider: providerName }),
+    retry: false,
+  });
+  const chosenModel =
+    model || (models.data?.length === 1 ? models.data[0].id : "");
+  const selection = providerName.includes("/")
+    ? providerName
+    : chosenModel && `${providerName}/${chosenModel}`;
   const mutate = useMutation({
     mutationFn: async () => {
       if (!checkpointId) throw new Error("等待一个完整轮次后再创建分支");
@@ -39,8 +62,8 @@ export function Conversation({
       return fork({
         shareId,
         checkpointId,
-        provider: provider || data?.provider || "",
-        question,
+        provider: selection,
+        startEntryId: startEntry,
         requestKey: requestKey.current,
       });
     },
@@ -98,7 +121,15 @@ export function Conversation({
           theme={theme}
           primary
           disabled={!data.checkpoints.length}
-          onPress={() => setShowFork(!showFork)}
+          onPress={() => {
+            if (!showFork) {
+              setSelected(data.checkpoints[0]?.id ?? null);
+              setStartEntry(undefined);
+              setPage(0);
+              requestKey.current = null;
+            }
+            setShowFork(!showFork);
+          }}
         >
           从历史创建分支
         </Button>
@@ -125,31 +156,87 @@ export function Conversation({
               disabled={mutate.isPending}
               onPress={() => {
                 setSelected(cp.id);
+                setStartEntry(undefined);
+                setPage(0);
                 requestKey.current = null;
               }}
             >
               {new Date(cp.createdAt).toLocaleString()} · {cp.entryCount} 条记录
             </Button>
           ))}
+          <Text style={{ color: theme.colors.foreground, fontWeight: "600" }}>
+            从哪一轮开始？包含该轮到所选快照末尾的对话
+          </Text>
+          <Button
+            theme={theme}
+            primary={!startEntry}
+            onPress={() => {
+              setStartEntry(undefined);
+              requestKey.current = null;
+            }}
+          >
+            全部历史
+          </Button>
+          <ErrorText theme={theme} error={turns.error} />
+          {turns.isLoading && (
+            <Text style={{ color: theme.colors.foregroundMuted }}>
+              正在读取快照…
+            </Text>
+          )}
+          {turns.data?.slice(page * 12, (page + 1) * 12).map((turn, index) => (
+            <Button
+              key={turn.id}
+              theme={theme}
+              primary={startEntry === turn.id}
+              onPress={() => {
+                setStartEntry(turn.id);
+                requestKey.current = null;
+              }}
+            >
+              第 {page * 12 + index + 1} 轮 · {turn.preview}
+            </Button>
+          ))}
+          {page > 0 && (
+            <Button theme={theme} onPress={() => setPage(page - 1)}>
+              上一页轮次
+            </Button>
+          )}
+          {(turns.data?.length ?? 0) > (page + 1) * 12 && (
+            <Button theme={theme} onPress={() => setPage(page + 1)}>
+              下一页轮次
+            </Button>
+          )}
           <Field
             theme={theme}
-            label="本机 provider 或 provider/model"
-            value={provider || data.provider}
+            label="本机 provider 或 provider/model ID"
+            value={provider ?? data.provider}
             onChange={(value) => {
               setProvider(value);
+              setModel("");
               requestKey.current = null;
             }}
           />
-          <Field
-            theme={theme}
-            label="在你的分支里继续提问"
-            value={question}
-            onChange={(value) => {
-              setQuestion(value);
-              requestKey.current = null;
-            }}
-            multiline
-          />
+          {!providerName.includes("/") && (
+            <>
+              <Text style={{ color: theme.colors.foreground }}>
+                选择本机模型
+              </Text>
+              <ErrorText theme={theme} error={models.error} />
+              {models.data?.map((item) => (
+                <Button
+                  key={item.id}
+                  theme={theme}
+                  primary={chosenModel === item.id}
+                  onPress={() => {
+                    setModel(item.id);
+                    requestKey.current = null;
+                  }}
+                >
+                  {item.label}
+                </Button>
+              ))}
+            </>
+          )}
           <ErrorText theme={theme} error={mutate.error} />
           {mutate.data && (
             <Text selectable style={{ color: theme.colors.foreground }}>
@@ -159,7 +246,7 @@ export function Conversation({
           <Button
             theme={theme}
             primary
-            disabled={mutate.isPending || !question.trim()}
+            disabled={mutate.isPending || !selection || !turns.isSuccess}
             onPress={() => mutate.mutate()}
           >
             {mutate.isPending ? "正在创建本地分支…" : "创建并打开我的分支"}
