@@ -2,7 +2,7 @@ import { useState } from "react";
 import { ScrollView, Text, View } from "react-native";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRpc, type PluginScreenProps } from "@getpaseo/plugin/client";
-import * as rpc from "../../shared/rpc";
+import * as rpc from "../shared/rpc";
 import { Button, ErrorText } from "./components";
 import { Connect } from "./connect";
 import { Conversation } from "./conversation";

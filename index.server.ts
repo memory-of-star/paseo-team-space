@@ -1,5 +1,5 @@
 import type { PluginServerContext } from "@getpaseo/plugin/server";
-import { Connector } from "./plugin/server/connector";
+import { Connector } from "./server/connector";
 import * as rpc from "./shared/rpc";
 
 export default function contribute(server: PluginServerContext) {

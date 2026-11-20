@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import type { PaseoAgentHandle } from "@getpaseo/client";
-import { readHistory } from "../plugin/server/history";
+import { readHistory } from "../server/history";
 
 function historyAgent(pages: unknown[]) {
   let next = 0;

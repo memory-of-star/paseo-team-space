@@ -1,6 +1,8 @@
 services:
   team:
-    build: .
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile
     restart: unless-stopped
     environment:
       TEAM_BOOTSTRAP_TOKEN: ${TEAM_BOOTSTRAP_TOKEN:?Set TEAM_BOOTSTRAP_TOKEN before starting}

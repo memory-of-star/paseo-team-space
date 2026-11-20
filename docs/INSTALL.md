@@ -21,10 +21,10 @@ paseo daemon config set pluginsEnabled true
 paseo reload
 ```
 
-查看第一步的插件列表。如果还没有 `team-space`，从 GitHub 安装发布标签 `v0.1.0`：
+查看第一步的插件列表。如果还没有 `team-space`，从 GitHub 安装发布标签 `v0.1.1`：
 
 ```text
-paseo plugin install https://github.com/memory-of-star/paseo-team-space.git --ref v0.1.0
+paseo plugin install https://github.com/memory-of-star/paseo-team-space.git --ref v0.1.1
 ```
 
 如果列表中已有来自本仓库或其本地检出的 `team-space`，可以直接继续启用。若同名条目指向其他项目，先报告来源冲突，并保留现有安装。

@@ -13,8 +13,8 @@ import {
   shareDetailSchema,
   shareSummarySchema,
   type Publish,
-} from "../../shared/model";
-import type { connectRpc, forkRpc } from "../../shared/rpc";
+} from "../shared/model";
+import type { connectRpc, forkRpc } from "../shared/rpc";
 import { LocalStorage, type LocalState } from "./storage";
 import { request, serviceUrl, ServiceError } from "./transport";
 import { readHistory, forkPrompt } from "./history";

@@ -17,8 +17,9 @@
 | 路径 | 用途 |
 | --- | --- |
 | `paseo-plugin.json`、`index.client.tsx`、`index.server.ts` | Paseo 发现插件和加载界面的入口 |
-| `plugin/client/`、`plugin/server/` | 团队空间界面、daemon 连接与历史同步 |
+| `client/`、`server/` | 团队空间界面、daemon 连接与历史同步 |
 | `service/`、`shared/` | 独立团队服务、SQLite 存储和共用的协议定义 |
+| `deploy/`、`compose.yaml` | 自建团队服务的容器部署 |
 | `docs/` | 成员安装、服务部署和开发指南 |
 | `tests/`、`scripts/` | 自动化测试、跨版本验证和浏览器检查 |
 | `assets/` | 插件预览图 |

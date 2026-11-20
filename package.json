@@ -1,6 +1,6 @@
 {
   "name": "paseo-team-space",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Share read-only agent conversations with a team and fork private local branches.",
   "type": "module",
   "license": "Apache-2.0",
@@ -11,7 +11,8 @@
     "paseo-plugin.json",
     "index.client.tsx",
     "index.server.ts",
-    "plugin",
+    "client",
+    "server",
     "shared",
     "assets",
     "dist",
@@ -24,7 +25,7 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
-    "format": "prettier --write plugin shared service scripts tests index.* package.json paseo-plugin.json tsconfig.json",
+    "format": "prettier --write client server shared service scripts tests index.* package.json paseo-plugin.json tsconfig.json",
     "test": "tsx --test tests/*.test.ts",
     "build": "esbuild service/main.ts --bundle --platform=node --format=esm --target=node22 --outfile=dist/team-service.mjs",
     "start": "node dist/team-service.mjs",

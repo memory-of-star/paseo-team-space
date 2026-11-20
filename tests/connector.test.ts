@@ -7,10 +7,10 @@ import type { AddressInfo } from "node:net";
 import type { PaseoApi, PaseoAgentCreateOptions } from "@getpaseo/client";
 import { Store } from "../service/store";
 import { createTeamServer } from "../service/http";
-import { Connector } from "../plugin/server/connector";
-import { LocalStorage } from "../plugin/server/storage";
-import { forkPrompt } from "../plugin/server/history";
-import { serviceUrl } from "../plugin/server/transport";
+import { Connector } from "../server/connector";
+import { LocalStorage } from "../server/storage";
+import { forkPrompt } from "../server/history";
+import { serviceUrl } from "../server/transport";
 
 test("two connectors publish, fork on the recipient host, retry idempotently, and persist a withdrawal across restart", async () => {
   const dir = await mkdtemp(join(tmpdir(), "team-space-"));

@@ -3,7 +3,7 @@ import { ScrollView, Text, View } from "react-native";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRpc } from "@getpaseo/plugin/client";
 import type { PluginTheme } from "@getpaseo/plugin";
-import { connectRpc } from "../../shared/rpc";
+import { connectRpc } from "../shared/rpc";
 import { Button, ErrorText, Field } from "./components";
 
 export function Connect({ theme }: { theme: PluginTheme }) {

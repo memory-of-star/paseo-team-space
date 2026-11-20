@@ -3,7 +3,7 @@ import {
   transcriptSchema,
   type Entry,
   type ForkSnapshot,
-} from "../../shared/model";
+} from "../shared/model";
 
 function displayEntry(item: AgentTimelineItem, id: string): Entry | null {
   if (item.type === "user_message")

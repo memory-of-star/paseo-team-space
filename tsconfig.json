@@ -14,7 +14,8 @@
   },
   "include": [
     "index.*",
-    "plugin",
+    "client",
+    "server",
     "shared",
     "service",
     "tests",

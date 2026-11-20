@@ -2,8 +2,8 @@ import { useRef, useState } from "react";
 import { FlatList, ScrollView, Text, View } from "react-native";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useRpc, type PluginScreenProps } from "@getpaseo/plugin/client";
-import { detailRpc, forkRpc } from "../../shared/rpc";
-import type { Identity } from "../../shared/model";
+import { detailRpc, forkRpc } from "../shared/rpc";
+import type { Identity } from "../shared/model";
 import { Button, ErrorText, Field } from "./components";
 
 export function Conversation({

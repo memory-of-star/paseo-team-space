@@ -3,7 +3,7 @@ import { homedir } from "node:os";
 import { join } from "node:path";
 import { randomUUID } from "node:crypto";
 import { z } from "zod";
-import { identitySchema, originSchema } from "../../shared/model";
+import { identitySchema, originSchema } from "../shared/model";
 
 const stateSchema = z.object({
   version: z.literal(1),
