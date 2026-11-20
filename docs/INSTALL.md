@@ -31,6 +31,14 @@ paseo plugin install https://github.com/memory-of-star/paseo-team-space.git --re
 
 ## 3. 启用并核验
 
+先查看插件状态。Paseo 通常会在安装成功时自动启用插件。
+
+```text
+paseo plugin ls team-space --json
+```
+
+如果 `enabled` 为 `false` 或 `status` 为 `"disabled"`，执行以下两条命令。已运行的插件可以直接核验。
+
 ```text
 paseo plugin enable team-space
 paseo plugin ls team-space --json
