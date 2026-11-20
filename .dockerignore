@@ -1,0 +1,7 @@
+node_modules
+.runtime
+.git
+artifacts
+dist
+.env
+*.db*

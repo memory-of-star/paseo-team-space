@@ -1,0 +1,7 @@
+{
+  "id": "team-space",
+  "name": "Team space",
+  "description": "Share agent progress with your team and continue conversations in independent local branches.",
+  "media": ["assets/team-desktop-light.png", "assets/team-mobile-dark.png"],
+  "requirements": { "paseo": ">=0.15.4 <0.17.0" }
+}

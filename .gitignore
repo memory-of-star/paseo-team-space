@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.runtime/
+*.db
+*.db-shm
+*.db-wal
+artifacts/
+.env
+*.pem
+*.key
+*.env
