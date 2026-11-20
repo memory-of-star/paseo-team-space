@@ -4,7 +4,7 @@ import {
   type PluginSidebarItemProps,
 } from "@getpaseo/plugin/client";
 import { useQuery } from "@tanstack/react-query";
-import { SidebarRow } from "@getpaseo/client/ui";
+import { SidebarRow } from "@getpaseo/plugin/client/ui";
 import { TeamSpace } from "./client/space";
 import { shareRpc, statusRpc } from "./shared/rpc";
 
