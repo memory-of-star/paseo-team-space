@@ -1,6 +1,6 @@
 # 在当前 Paseo daemon 安装并启用 Team Space
 
-收到这份文档的 agent，请在用户日常使用的 Paseo daemon 主机上执行下面的命令，直到 CLI 确认 `team-space` 已启用并运行。安装阶段只需访问公开 GitHub 仓库。团队创建密钥和邀请码都用于之后的团队操作。
+收到这份文档的 agent，请在用户日常使用的 Paseo daemon 主机上执行下面的命令，直到 CLI 确认 `team-space` 已启用并运行。插件来自公开 GitHub 仓库。团队创建密钥和邀请码都用于之后的团队操作。
 
 ## 1. 确认目标 daemon
 
@@ -9,19 +9,31 @@
 ```text
 paseo --version
 paseo status --json
-paseo plugin ls --json
 ```
 
-需要支持插件的 Paseo CLI、daemon 和客户端。插件声明的版本范围是 `>=0.15.4 <0.17.0`，验证版本为 `0.15.4` 和 `0.16.0-beta.1`。如果 CLI 报告 daemon 未运行，使用 `paseo daemon start` 启动用户已有的实例，再检查状态。如果缺少 CLI、版本不兼容或无法访问目标主机，请报告具体原因。
+以 `paseo status --json` 返回的 `daemonVersion` 判断运行中的 daemon 版本。`paseo --version` 显示 CLI 版本。如果 daemon 未运行，先启动用户已有的实例，再检查状态。Team Space `v0.1.1` 声明的 Paseo 版本范围是 `>=0.15.4 <0.17.0`，已验证 `0.15.4` 和 `0.16.0-beta.1`。如果 daemon 版本满足要求且 CLI 支持 `paseo plugin`，直接进入第 2 步。
+
+### 版本不满足时，先更新到最新稳定版
+
+如果 daemon 版本不满足要求，或旧 CLI 缺少上述命令，请在目标主机上使用原安装方式更新到 Paseo **最新稳定版**。保留已有的 daemon home、配置和会话。对于通过 npm 全局安装的独立 daemon，在原安装账号和 Node.js 环境中执行：
+
+```text
+npm install --global @getpaseo/cli@latest
+paseo daemon restart
+paseo status --json
+```
+
+如果 daemon 由桌面应用或系统服务管理，请更新该应用或服务实际使用的 Paseo，再通过原管理方式重启同一实例。重启后重新读取 `daemonVersion`。如果仍是旧版本，检查服务启动命令指向的 Paseo 路径。确认运行版本满足要求后继续安装；如果最新稳定版已超出上述范围，请报告实际版本和插件要求，等待兼容的插件版本。
 
 ## 2. 打开插件总开关，安装固定版本
 
 ```text
 paseo daemon config set pluginsEnabled true
 paseo reload
+paseo plugin ls --json
 ```
 
-查看第一步的插件列表。如果还没有 `team-space`，从 GitHub 安装发布标签 `v0.1.1`：
+查看插件列表。如果还没有 `team-space`，从 GitHub 安装发布标签 `v0.1.1`：
 
 ```text
 paseo plugin install https://github.com/memory-of-star/paseo-team-space.git --ref v0.1.1
